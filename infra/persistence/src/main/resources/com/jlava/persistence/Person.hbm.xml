@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.jlava.model.Person" table="person" catalog="public">
+        <id name="personId" type="int">
+            <column name="person_id" />
+            <generator class="identity" />
+        </id>
+        <property name="lastName" column="last_name" type="string" length="20" not-null="true"/>
+        <property name="firstName" column="first_name" type="string" length="20" not-null="true"/>
+        <property name="midName" column="mid_name" type="string" length="20"/>
+        <property name="suffix" column="suffix" type="string" length="4"/>
+        <property name="title" column="title" type="string" length="3"/>
+        <property name="birthDate" column="birth_date" type="date"/>
+        <property name="gwa" column="gwa" type="float"/>
+        <property name="dateHired" column="date_hired" type="date"/>
+        <property name="employed" column="employed" type="boolean"/>
+
+        <!-- one-to-one mapping -->
+        <many-to-one name="address" class="com.jlava.model.Address" lazy="false" column="address_id" not-null="true" cascade="all" unique="true"/>
+        
+        <!-- one-to-many mapping -->
+        <set name="contacts" table="contact" inverse="true" lazy="false" cascade="all">
+            <key column="person_id" not-null="true"/>
+            <one-to-many class="com.jlava.model.Contact"/>
+        </set>
+
+        <!-- many-to-many mapping -->
+        <set name="roles" table="person_role" lazy="false" cascade="all">
+            <key column="person_id" not-null="true"/>
+            <many-to-many column="role_id" class="com.jlava.model.Role"/>
+        </set>
+    </class>
+</hibernate-mapping>
