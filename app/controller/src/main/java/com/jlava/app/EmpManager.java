@@ -1,6 +1,7 @@
 package com.jlava.app;
 
 import com.jlava.service.*;
+import com.jlava.service.impl.*;
 import com.jlava.model.*;
 import com.jlava.persistence.HibernateUtil;
 import com.jlava.apputil.AppUtil;
