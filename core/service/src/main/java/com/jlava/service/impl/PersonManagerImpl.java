@@ -3,6 +3,7 @@ package com.jlava.service.impl;
 import com.jlava.model.Person;
 import com.jlava.model.Role;
 import com.jlava.model.Address;
+import com.jlava.model.Name;
 import com.jlava.dao.PersonDao;
 import com.jlava.dao.RoleDao;
 import com.jlava.service.PersonManager;
@@ -19,40 +20,44 @@ public class PersonManagerImpl implements PersonManager{
 		this.roleDao = new RoleDao();
 	}
 
-	public int addPerson(String lastName, String firstName, String midName, String suffix, String title,
+	public Long addPerson(String lastName, String firstName, String midName, String suffix, String title,
 				Date birthDate, float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, int zipCode) {
 		Address address = new Address(street, barangay, municipality, zipCode);
-		Person person = new Person(lastName, firstName, midName, suffix, title, birthDate, gwa, dateHired, employed, address);
+		Name name = new Name(lastName, firstName, midName, suffix, title);
+		Person person = new Person(name, birthDate, gwa, dateHired, employed, address);
 
-		Integer personId = personDao.addPerson(person);
+		Long personId = personDao.addPerson(person);
 		if(personId != null) {
-			System.out.println("[Successfully added " + person.getLastName() + ", " + person.getFirstName() + " with ID : " + personId + "]");
+			System.out.println("[Successfully added " + person.getName().getLastName() + ", " + person.getName().getFirstName() + " with ID : " + personId + "]");
 			return personId;
 		} else {
 			System.out.println("[Add person failed]");
-			return 0;
+			return new Long(0);
 		}
 	}
 
-	public void deletePerson(int personId) {
+	public int deletePerson(Long personId) {
 		int ctr = personDao.deletePerson(personId);
 		if(ctr > 0) {
 			System.out.println("[Successfully deleted person " + personId + "]");
 		} else {
 			System.out.println("[Failed : Person with id " + personId + " not found]");
 		}
+
+		return ctr;
 	}
 
-	public void updatePerson(int personId, String lastName, String firstName, String midName, String suffix, String title,
+	public int updatePerson(Long personId, String lastName, String firstName, String midName, String suffix, String title,
 				Date birthDate, float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, int zipCode) {
 		Person person = getPerson(personId);
 
 		if(person != null) {
-			person.setLastName(lastName);
-			person.setFirstName(firstName);
-			person.setMidName(midName);
-			person.setSuffix(suffix);
-			person.setTitle(title);
+			person.getName().setLastName(lastName);
+			person.getName().setFirstName(firstName);
+			person.getName().setMidName(midName);
+			person.getName().setSuffix(suffix);
+			person.getName().setTitle(title);
+
 			person.setBirthDate(birthDate);
 			person.setGwa(gwa);
 			person.setDateHired(dateHired);
@@ -64,28 +69,35 @@ public class PersonManagerImpl implements PersonManager{
 			person.getAddress().setZipCode(zipCode);
 
 			personDao.updatePerson(person);
-			System.out.println("[Successfully updated person " + personId + "]");
+			return 1;
 		}
+
+		return 0;
 	}
 
-	public void updatePerson(Person person) {
+	public int updatePerson(Person person) {
 		if(person != null) {
 			personDao.updatePerson(person);
-			System.out.println("[Successfully updated person " + person.getPersonId() + "]");
+			System.out.println("[Successfully updated person " + person.getId() + "]");
+			return 1;
 		}
+
+		return 0;
 	}
 
-	public void listPersons(int sortBy) {
+	public List<Person> listPersons(int sortBy) {
 		List<Person> persons = personDao.listPerson(sortBy);
 
 		if(persons == null || persons.size() < 1) {
 			System.out.println("No persons found!");
+			return null;
 		} else {
-			persons.forEach(person -> printPerson(person));
+			//persons.forEach(person -> printPerson(person));
+			return persons;
 		}
 	}
 
-	public void searchPerson(int personId) {
+	public void searchPerson(Long personId) {
 		Person person = getPerson(personId);
 		
 		if(person != null) {	
@@ -95,13 +107,14 @@ public class PersonManagerImpl implements PersonManager{
 
 	public void printPerson(Person person) {
 		Address address = person.getAddress();
-		String suffix = (person.getSuffix() != null)?person.getSuffix():"";
-		String title = (person.getTitle() != null)?person.getTitle() + " ":"";
-		String midName = (person.getMidName() != null)?person.getMidName():"";
+		Name name = person.getName();
+		String suffix = (name.getSuffix() != null)?name.getSuffix():"";
+		String title = (name.getTitle() != null)?name.getTitle() + " ":"";
+		String midName = (name.getMidName() != null)?name.getMidName():"";
 		String addr = (address != null)?address.toString():"N/A";
 
-		System.out.println("\n[PERSON ID : " + person.getPersonId() + "]");
-		System.out.println("\tName : " + title + person.getFirstName() + " " + midName + " " + person.getLastName() + " " + suffix);
+		System.out.println("\n[PERSON ID : " + person.getId() + "]");
+		System.out.println("\tName : " + title + name.getFirstName() + " " + midName + " " + name.getLastName() + " " + suffix);
 		System.out.println("\tBirth Date : " + person.getBirthDate());
 		System.out.println("\tGeneral Weighted Average (GWA) : " + person.getGwa());
 		System.out.println("\tDate Hired : " + person.getDateHired());
@@ -111,10 +124,8 @@ public class PersonManagerImpl implements PersonManager{
 		System.out.println("\n\t[ Contact Info ]");
 		if(person.getContacts().size() > 0) {
 			person.getContacts().forEach(contact -> {
-				System.out.println("\n\t\tContact ID : " + contact.getContactId());
-				System.out.println("\t\tLandline : " + contact.getLandline());
-				System.out.println("\t\tMobile : " + contact.getMobileNo());
-				System.out.println("\t\te-mail : " + contact.getEmail());
+				System.out.println("\n\t\tContact ID : " + contact.getId());
+				System.out.println("\n\t\t" + contact.getContactType() + " - " + contact.getContactDesc());
 			});
 		} else {
 			System.out.println("\tNo contacts.");
@@ -123,31 +134,30 @@ public class PersonManagerImpl implements PersonManager{
 		System.out.println("\n\t[ Role(s) ]");
 		if(person.getRoles().size() > 0) {
 			person.getRoles().forEach(role -> {
-				System.out.println("\t\tRole : " + role.getRoleDesc() + " - " + role.getRoleId());
+				System.out.println("\t\tRole : " + role.getCode() + " " + role.getRoleDesc() + " - " + role.getId());
 			});
 		} else {
 			System.out.println("\tNo roles.");
 		}
 	}
 
-	public Person getPerson(int personId) {
+	public Person getPerson(Long personId) {
 		Person person = personDao.getPerson(personId);
 
-		if(person != null) {
-			return person;
-		} else {
+		if(person == null) {
 			System.out.println("[Person with id " + personId + " not found]");
-			return null;
 		}
+
+		return person;
 	}
 
-	public void addPersonRole(int personId, int roleId) {
+	public void addPersonRole(Long personId, Long roleId) {
 		Person person = getPerson(personId);
 
 		if(person != null) {
 			Role role = person.getRoles()
 							.stream()
-							.filter(r -> r.getRoleId() == roleId)
+							.filter(r -> r.getId() == roleId)
 							.findFirst()
 							.orElse(null);
 			role = (role != null)?role:getRole(roleId);
@@ -164,18 +174,19 @@ public class PersonManagerImpl implements PersonManager{
 		}
 	}
 
-	public void deletePersonRole(int personId, int roleId) {
+	public void deletePersonRole(Long personId, Long roleId) {
 		Person person = getPerson(personId);
 
 		if(person != null) {
 			Role role = person.getRoles()
 							.stream()
-							.filter(r -> r.getRoleId() == roleId)
+							.filter(r -> r.getId() == roleId)
 							.findFirst()
 							.orElse(null);
 			
 			if(role != null) {
-				person.getRoles().remove(role);
+				//person.getRoles().remove(role);
+				role.setDeleted(true);
 				updatePerson(person);
 				System.out.println("[Successfully deleted " + role.getRoleDesc() + " role from person " + personId + "]");
 			} else {
@@ -184,7 +195,7 @@ public class PersonManagerImpl implements PersonManager{
 		}
 	}
 
-	public Role getRole(int roleId) {
+	public Role getRole(Long roleId) {
 		Role role = roleDao.getRole(roleId);
 		if(role == null) {
 			System.out.println("[Role with id " + roleId + " not found]");

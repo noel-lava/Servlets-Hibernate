@@ -20,7 +20,13 @@ public class EmpManager {
 
     public static void main( String[] args ) {
         EmpManager empManager = new EmpManager();
-        String option = "";
+        /*empManager.personManager.listPersons(2).forEach(person -> {
+            System.out.println(person.getId());
+        });*/
+
+        Person person = empManager.personManager.getPerson(new Long(1));
+        empManager.personManager.searchPerson(new Long(1));
+        /*String option = "";
 
         AppUtil.println("\n\n========================");
         AppUtil.println("=== Employee Manager ===");
@@ -98,12 +104,12 @@ public class EmpManager {
                     break;
             }
 
-        } while (!option.equals("e"));
+        } while (!option.equals("e"));*/
 
         HibernateUtil.shutdown();
     }
 
-    private void listPersons() {
+    /*private void listPersons() {
         AppUtil.println("[Sort persons by]");
         AppUtil.println("\t[1] General Weighted Average (GWA)");
         AppUtil.println("\t[2] Date Hired");
@@ -366,5 +372,5 @@ public class EmpManager {
 
             roleManager.deleteRole(roleId);
         }
-    }
+    }*/
 }

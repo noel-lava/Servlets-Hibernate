@@ -1,30 +1,49 @@
 package com.jlava.model;
 
 import java.util.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
+import javax.persistence.FetchType;
+import javax.persistence.CascadeType;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
 
-public class Person {
-	private int personId;
-	private String lastName;
-	private String firstName;
-	private String midName;
-	private String suffix;
-	private String title;
+@Entity
+@Table(name="person")
+public class Person extends BaseModel{
+	private Name name;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name="birth_date")
 	private Date birthDate;
-	private float gwa;
+
+	@Column(name="gwa")
+	private Float gwa;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name="date_hired")
 	private Date dateHired;
-	private boolean employed;
+
+	@Column(name="employed")
+	private Boolean employed;
 	private Address address;
+
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="person")
 	private Set<Contact> contacts = new HashSet<Contact>(0);
+	
+	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	@JoinTable(name="person_role", joinColumns = {@JoinColumn(name="person_id", updatable=false)},
+		inverseJoinColumns = {@JoinColumn(name="role_id", updatable=false)})
 	private Set<Role> roles = new HashSet<Role>(0);
 
 	public Person(){}
-	public Person(String lastName, String firstName, String midName, String suffix, String title,
-				Date birthDate, float gwa, Date dateHired, boolean employed, Address address) {
-		this.lastName = lastName;
-		this.firstName = firstName;
-		this.midName = midName;
-		this.suffix = suffix;
-		this.title = title;
+	public Person(Name name, Date birthDate, float gwa, Date dateHired, boolean employed, Address address) {
+		this.name = name;
 		this.birthDate = birthDate;
 		this.gwa = gwa;
 		this.dateHired = dateHired;
@@ -32,52 +51,12 @@ public class Person {
 		this.address = address;
 	}
 
-	public int getPersonId() {
-		return personId;
+	public Name getName() {
+		return name;
 	}
 
-	public void setPersonId(int personId) {
-		this.personId = personId;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getMidName() {
-		return midName;
-	}
-
-	public void setMidName(String midName) {
-		this.midName = midName;
-	}
-
-	public String getSuffix() {
-		return suffix;
-	}
-
-	public void setSuffix(String suffix) {
-		this.suffix = suffix;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
+	public void setName(Name name) {
+		this.name = name;
 	}
 
 	public Date getBirthDate() {

@@ -18,14 +18,14 @@ public class PersonDao {
 		this.sessionFactory = HibernateUtil.getSessionFactory();
 	}
 
-	public Integer addPerson(Person person) {
+	public Long addPerson(Person person) {
 		Session session = sessionFactory.openSession();
 		Transaction transaction = null;
-		Integer personId = null;
+		Long personId = null;
 
 		try {
 			transaction = session.beginTransaction();
-			personId = (Integer) session.save(person);
+			personId = (Long) session.save(person);
 			transaction.commit();
 		} catch(HibernateException he) {
 			if(transaction != null) {
@@ -39,41 +39,23 @@ public class PersonDao {
 		return personId;
 	}
 
-	public int deletePerson(int personId) {
-		Session session = sessionFactory.openSession();
-		Transaction transaction = null;
-		int deleted = 0;
-
-		try {
-			transaction = session.beginTransaction();
-			Person person = (Person)session.get(Person.class, personId);
-
-			if(person != null) {
-				session.delete(person);
-				deleted = 1;
-				transaction.commit();
-			}
-		} catch(HibernateException he) {
-			if(transaction != null) {
-				transaction.rollback();
-			}
-			he.printStackTrace();
-		} finally {
-			session.close();
-		}
-
-		return deleted;
+	public int deletePerson(Long personId) {
+		Person person = getPerson(personId);
+		person.setDeleted(true);
+		return updatePerson(person);
 	}
 
-	public void updatePerson(Person person) {
+	public int updatePerson(Person person) {
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
+		int updated = 0;
 
 		try {
 			transaction = session.beginTransaction();
 			session.update(person);
 
 			transaction.commit();
+			updated = 1;
 		} catch(HibernateException he) {
 			if(transaction != null) {
 				transaction.rollback();
@@ -82,6 +64,8 @@ public class PersonDao {
 		} finally {
 			session.close();
 		}
+
+		return updated;
 	}
 
 	public List<Person> listPerson(int sortBy) {
@@ -90,16 +74,16 @@ public class PersonDao {
 
 		switch(sortBy) {
 			case 1 : // SORT BY GWA (JAVA)
-				persons = session.createQuery("FROM Person").list();
+				persons = session.createQuery("FROM Person WHERE deleted = false").list();
 				Collections.sort(persons, (p1, p2) -> Float.compare(p1.getGwa(), p2.getGwa()));
 
 				break;
 			case 2 : // SORT BY DATE HIRED
-				persons = session.createQuery("FROM Person ORDER BY dateHired ASC").list();
+				persons = session.createQuery("FROM Person WHERE deleted = false ORDER BY dateHired ASC").list();
 				break;
 			case 3 : // SORT BY LAST NAME
 			default :
-				persons = session.createQuery("FROM Person ORDER BY lastName ASC").list();
+				persons = session.createQuery("FROM Person p WHERE p.deleted = false ORDER BY p.name.lastName ASC").list();
 				break;
 		}
 
@@ -108,14 +92,12 @@ public class PersonDao {
 		return persons;
 	}
 
-	public Person getPerson(int personId) {
+	public Person getPerson(Long personId) {
 		Session session = sessionFactory.openSession();
-		Person person = null;
-
-		person =  (Person)session.get(Person.class, new Integer(personId));
+		Person person = (Person)session.createQuery("FROM Person WHERE id = :id deleted = false").setParameter("id", personId).uniqueResult();
+		//session.get(Person.class, personId);
 
 		session.close();
-
 		return person;
 	}
 }

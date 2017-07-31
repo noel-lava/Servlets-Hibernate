@@ -10,14 +10,14 @@ import org.hibernate.HibernateException;
 import java.util.*;
 
 public class RoleDao {
-	public Integer addRole(Role role) {
+	public Long addRole(Role role) {
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		Transaction transaction = null;
-		Integer roleId = null;
+		Long id = null;
 
 		try {
 			transaction = session.beginTransaction();
-			roleId = (Integer)session.save(role);
+			id = (Long)session.save(role);
 			transaction.commit();
 		} catch(HibernateException he) {
 			if(transaction != null) {
@@ -27,7 +27,7 @@ public class RoleDao {
 		} finally {
 			session.close();
 		}
-		return roleId;
+		return id;
 	}
 
 	public int updateRole(Role role) {
@@ -54,23 +54,8 @@ public class RoleDao {
 	}
 
 	public int deleteRole(Role role) {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-		Transaction transaction = null;
-		int deleted = 0;
-
-		try {
-			transaction = session.beginTransaction();
-			session.delete(role);
-			deleted = 1;
-			transaction.commit();
-		} catch(HibernateException he) {
-			if(transaction != null) {
-				transaction.rollback();
-			}
-			he.printStackTrace();
-		} finally {
-			session.close();
-		}
+		role.setDeleted(true);
+		int deleted = updateRole(role);
 
 		return deleted;
 	}
@@ -78,25 +63,27 @@ public class RoleDao {
 	public List<Role> getRoles() {
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		List<Role> roles = null;
-		roles = session.createQuery("FROM Role ORDER BY roleId ASC").list();
+		roles = session.createQuery("FROM Role WHERE deleted=false ORDER BY id ASC").list();
 		session.close();
 
 		return roles;
 	}
 
-	public Role getRole(int roleId) {
+	public Role getRole(Long id) {
 		Session session = HibernateUtil.getSessionFactory().openSession();
-		Role role = (Role)session.get(Role.class, new Integer(roleId));
+		Role role = (Role)session.createQuery("FROM Role WHERE deleted=false AND id = :id")
+						.setParameter("id", id).uniqueResult();
 		session.close();
 
 		return role;
 	}
 
-	public List<Person> getPersonsWithRole(int roleId) {
-		Session session = HibernateUtil.getSessionFactory().openSession();
+	public List<Person> getPersonsWithRole(Long id) {
+		/*Session session = HibernateUtil.getSessionFactory().openSession();
 		List<Person> persons = session.createQuery("Select p FROM Person p JOIN p.roles a WHERE a.roleId = :roleId").setParameter("roleId", roleId).list();
-		session.close();
+		session.close();*/
+		return getRole(id).getPersons();
 
-		return persons;
+		//return persons;
 	}
 }

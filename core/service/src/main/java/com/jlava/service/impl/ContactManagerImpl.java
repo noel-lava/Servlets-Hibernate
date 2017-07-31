@@ -3,21 +3,24 @@ package com.jlava.service.impl;
 import com.jlava.model.Contact;
 import com.jlava.model.Person;
 import com.jlava.dao.ContactDao;
+import com.jlava.dao.PersonDao;
 import com.jlava.service.PersonManager;
 import com.jlava.service.ContactManager;
 
 public class ContactManagerImpl implements ContactManager{
 	private PersonManager pManager;
 	private ContactDao contactDao;
+	private PersonDao personDao;
 
 	public ContactManagerImpl(PersonManager pManager) {
 		this.pManager = pManager;
 		this.contactDao = new ContactDao();
+		this.personDao = new PersonDao();
 	}
 	
-	public void addContact(int personId, String landline, String mobileNo, String email) {
-		Person person = pManager.getPerson(personId);
-		Contact contact = new Contact(landline, mobileNo, email);
+	public void addContact(Long personId, Long typeId, String contactDesc) {
+		Person person = personDao.getPerson(personId);
+		Contact contact = new Contact(typeId, contactDesc);
 
 		if(person != null) {
 			contact.setPerson(person);
@@ -29,17 +32,15 @@ public class ContactManagerImpl implements ContactManager{
 		}
 	}
 
-	public void updateContact(int personId, int oldContactId, String landline, String mobileNo, String email) {
+	public void updateContact(Long personId, Long oldContactId, String contactDesc) {
 		Contact contact = contactDao.getContact(personId, oldContactId);
 
 		if(contact != null) {
-			contact.setLandline(landline);
-			contact.setMobileNo(mobileNo);
-			contact.setEmail(email);
+			contact.setContactDesc(contactDesc);
 			int status = contactDao.updateContact(personId, contact);
 
 			if(status > 0) {
-				System.out.println("[Updated contact " + contact.getContactId() + " of person "+ personId + "]");
+				System.out.println("[Updated contact " + contact.getId() + " of person "+ personId + "]");
 			} else {
 				System.out.println("[Update Failed]");
 			}
@@ -48,11 +49,11 @@ public class ContactManagerImpl implements ContactManager{
 		}
 	}
 
-	public void deleteContact(int personId, int contactId) {
+	public void deleteContact(Long personId, Long contactId) {
 		Contact contact = contactDao.getContact(personId, contactId);
 
 		if(contact != null) {
-			int status = contactDao.deleteContact(personId, contactId);
+			int status = contactDao.deleteContact(personId, contact);
 
 			if(status > 0) {
 				System.out.println("[Deleted contact " + contactId + " of person " + personId + "]");
@@ -64,7 +65,7 @@ public class ContactManagerImpl implements ContactManager{
 		}
 	}
 
-	public Contact getContact(int personId, int contactId) {
+	public Contact getContact(Long personId, Long contactId) {
 		Contact contact = contactDao.getContact(personId, contactId);
 		if(contact == null) {
 			System.out.println("[Contact with id " + contactId + " of person " + personId + " not found]");

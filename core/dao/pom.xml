@@ -20,9 +20,9 @@
       <artifactId>persistence</artifactId>
     </dependency>
 
-    <dependency>
+    <!-- <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>model</artifactId>
-    </dependency>
+    </dependency> -->
   </dependencies>
 </project>

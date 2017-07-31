@@ -18,15 +18,15 @@ public class RoleManagerImpl implements RoleManager{
 		this.personManager = personManager;
 	}
 
-	public void addRole(String roleDesc) {
-		Role role = new Role(roleDesc);
-		Integer roleId = roleDao.addRole(role);	
+	public void addRole(String roleCode, String roleDesc) {
+		Role role = new Role(roleCode, roleDesc);
+		Long roleId = roleDao.addRole(role);	
 		if(roleId != null) {
-			System.out.println("[New role added] : " + role.getRoleId() + " - " + roleDesc);
+			System.out.println("[New role added] : " + role.getId() + " - " + roleDesc);
 		}
 	}
 
-	public void updateRole(int roleId, String roleDesc) {
+	public void updateRole(Long roleId, String roleDesc) {
 		Role role = getRole(roleId);
 		if(role != null) {
 			role.setRoleDesc(roleDesc);
@@ -38,9 +38,9 @@ public class RoleManagerImpl implements RoleManager{
 				System.out.println("[Update Failed]");
 			}
 		}
-	} 
+	}
 
-	public void deleteRole(int roleId) {
+	public void deleteRole(Long roleId) {
 		Role role = getRole(roleId);
 		if(role != null) {
 			// Get all person with role = roleId
@@ -49,7 +49,7 @@ public class RoleManagerImpl implements RoleManager{
 			if(persons.size() > 0) {
 			// delete all person role with roleId = roleId;
 				persons.forEach(person -> {
-					personManager.deletePersonRole(person.getPersonId(), roleId);
+					personManager.deletePersonRole(person.getId(), roleId);
 				});
 			}
 
@@ -68,7 +68,7 @@ public class RoleManagerImpl implements RoleManager{
 		if(roles.size() > 0) {
 			System.out.println("\n[ ROLES ]");
 			roles.forEach(role -> {
-				System.out.println("\t["+role.getRoleId()+"] " + role.getRoleDesc());
+				System.out.println("\t["+role.getId()+"] " + role.getRoleDesc());
 			});
 		} else {
 			System.out.println("[No roles found]");
@@ -77,7 +77,7 @@ public class RoleManagerImpl implements RoleManager{
 		return roles.size();
 	}
 
-	public Role getRole(int roleId) {
+	public Role getRole(Long roleId) {
 		Role role = roleDao.getRole(roleId);
 		if(role == null) {
 			System.out.println("[Role with id " + roleId + " not found]");
@@ -86,7 +86,7 @@ public class RoleManagerImpl implements RoleManager{
 		return role;
 	}
 
-	public List<Person> getPersonsWithRole(int roleId) {
+	public List<Person> getPersonsWithRole(Long roleId) {
 		List<Person> persons = roleDao.getPersonsWithRole(roleId);
 
 		if(persons.size() < 1) {

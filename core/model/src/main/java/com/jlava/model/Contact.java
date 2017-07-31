@@ -1,49 +1,72 @@
 package com.jlava.model;
 
-public class Contact {
-	private int contactId;
-	private String landline;
-	private String mobileNo;
-	private String email;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.FetchType;
+import javax.persistence.ElementCollection;
+import javax.persistence.CollectionTable;
+
+@Entity
+@Table(name="contact")
+public class Contact extends BaseModel{
+	@Column(name="contact_desc")
+	private String contactDesc;
+
+	@Column(name="contact_type_id", updatable=false, insertable=false)
+	private Long typeId;
+
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="contact_type_id", nullable=false, updatable=false)
+	private ContactType contactType;
+
+	/*@ElementCollection
+	@CollectionTable(name="contact_type", joinColumns=@JoinColumn(name="contact_type_id"))
+	@Column(name="type_desc")
+	private String contactType;*/
+
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="person_id", nullable=false)
 	private Person person;
 
 	public Contact() {}
-	public Contact(String landline, String mobileNo, String email) {
-		this.landline = landline;
-		this.mobileNo = mobileNo;
-		this.email = email;
+	public Contact(Long typeId, String contactDesc) {
+		this.contactDesc = contactDesc;
+		this.typeId = typeId;
 	}
 
-	public int getContactId() {
-		return contactId;
+	public String getContactDesc() {
+		return contactDesc;
 	}
 
-	public void setContactId(int contactId) {
-		this.contactId = contactId;
+	public void setContactDesc(String contactDesc) {
+		this.contactDesc = contactDesc;
 	}
 
-	public String getLandline() {
-		return landline;
+	public Long getTypeId() {
+		return typeId;
 	}
 
-	public void setLandline(String landline) {
-		this.landline = landline;
+	public void setTypeId(Long typeId) {
+		this.typeId = typeId;
 	}
 
-	public String getMobileNo() {
-		return mobileNo;
+	/*public String getContactType() {
+		return contactType;
 	}
 
-	public void setMobileNo(String mobileNo) {
-		this.mobileNo = mobileNo;
+	public void setContactType(String contactType) {
+		this.contactType = contactType;
+	}*/
+
+	public ContactType getContactType() {
+		return contactType;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
+	public void setContactType(ContactType contactType) {
+		this.contactType = contactType;
 	}
 
 	public Person getPerson() {

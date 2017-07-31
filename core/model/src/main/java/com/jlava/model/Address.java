@@ -1,11 +1,22 @@
 package com.jlava.model;
 
+import javax.persistence.Embeddable;
+import javax.persistence.Column;
+
+@Embeddable
 public class Address {
-	private int addressId;
+
+	@Column(name="street", length=50)
 	private String street;
+
+	@Column(name="barangay", length=50)
 	private String barangay;
+
+	@Column(name="municipality", length=50)
 	private String municipality;
-	private int zipCode;
+
+	@Column(name="zipcode")
+	private Integer zipCode;
 
 	public Address() {}
 	public Address(String street, String barangay, String municipality, int zipCode) {
@@ -13,14 +24,6 @@ public class Address {
 		this.barangay = barangay;
 		this.municipality = municipality;
 		this.zipCode = zipCode;
-	}
-
-	public int getAddressId() {
-		return addressId;
-	}
-
-	public void setAddressId(int addressId) {
-		this.addressId = addressId;
 	}
 
 	public String getStreet() {
@@ -47,11 +50,11 @@ public class Address {
 		this.municipality = municipality;
 	}
 
-	public int getZipCode() {
+	public Integer getZipCode() {
 		return zipCode;
 	}
 
-	public void setZipCode(int zipCode) {
+	public void setZipCode(Integer zipCode) {
 		this.zipCode = zipCode;
 	}
 
