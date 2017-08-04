@@ -6,12 +6,12 @@ import java.util.*;
 
 public interface PersonManager {
 	Long addPerson(String lastName, String firstName, String midName, String suffix, String title,
-				Date birthDate, float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, int zipCode);
+				Date birthDate, Float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, Integer zipCode);
 
 	int deletePerson(Long personId);
 
 	int updatePerson(Long personId, String lastName, String firstName, String midName, String suffix, String title,
-				Date birthDate, float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, int zipCode);
+				Date birthDate, Float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, Integer zipCode);
 
 	int updatePerson(Person person);
 
@@ -25,8 +25,8 @@ public interface PersonManager {
 	Person getPerson(Long personId);
 
 	// add person role
-	void addPersonRole(Long personId, Long roleId);
+	int addPersonRole(Person person, Long roleId);
 
 	// delete person role
-	void deletePersonRole(Long personId, Long roleId);
+	int deletePersonRole(Person person, Long roleId);
 }

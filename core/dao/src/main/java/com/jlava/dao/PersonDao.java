@@ -5,6 +5,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Filter;
+import org.hibernate.stat.Statistics;
 
 import java.util.*;
 
@@ -19,6 +21,7 @@ public class PersonDao {
 	}
 
 	public Long addPerson(Person person) {
+		person.setDeleted(false);
 		Session session = sessionFactory.openSession();
 		Transaction transaction = null;
 		Long personId = null;
@@ -94,10 +97,13 @@ public class PersonDao {
 
 	public Person getPerson(Long personId) {
 		Session session = sessionFactory.openSession();
-		Person person = (Person)session.createQuery("FROM Person WHERE id = :id deleted = false").setParameter("id", personId).uniqueResult();
+		Filter filter = session.enableFilter("contactsFilter");
+		filter.setParameter("isDeleted", false);
+
+		Person person = (Person)session.createQuery("FROM Person WHERE id = :id AND deleted = false").setParameter("id", personId).uniqueResult();
 		//session.get(Person.class, personId);
 
 		session.close();
 		return person;
-	}
+	}	
 }

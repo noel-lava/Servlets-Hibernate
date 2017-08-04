@@ -40,4 +40,22 @@
   	<servlet-name>ManageRolesServlet</servlet-name>
   	<url-pattern>/roles</url-pattern>
   </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ManagePersonServlet</servlet-name>
+    <servlet-class>com.jlava.webapp.controller.ManagePersonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ManagePersonServlet</servlet-name>
+    <url-pattern>/manage-person</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>AddPersonServlet</servlet-name>
+    <servlet-class>com.jlava.webapp.controller.AddPersonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AddPersonServlet</servlet-name>
+    <url-pattern>/add-person</url-pattern>
+  </servlet-mapping>
 </web-app>

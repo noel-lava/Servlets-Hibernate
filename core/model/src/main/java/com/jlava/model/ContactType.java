@@ -18,7 +18,7 @@ public class ContactType extends BaseModel{
 	@Column(name="type_desc")
 	private String typeDesc;
 
-	@OneToMany(fetch=FetchType.LAZY, mappedBy="contactType")
+	@OneToMany(fetch=FetchType.EAGER, mappedBy="contactType")
 	private Set<Contact> contacts;
 
 	public ContactType () {}

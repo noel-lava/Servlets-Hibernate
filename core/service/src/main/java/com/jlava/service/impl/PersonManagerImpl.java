@@ -21,7 +21,7 @@ public class PersonManagerImpl implements PersonManager{
 	}
 
 	public Long addPerson(String lastName, String firstName, String midName, String suffix, String title,
-				Date birthDate, float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, int zipCode) {
+				Date birthDate, Float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, Integer zipCode) {
 		Address address = new Address(street, barangay, municipality, zipCode);
 		Name name = new Name(lastName, firstName, midName, suffix, title);
 		Person person = new Person(name, birthDate, gwa, dateHired, employed, address);
@@ -48,7 +48,7 @@ public class PersonManagerImpl implements PersonManager{
 	}
 
 	public int updatePerson(Long personId, String lastName, String firstName, String midName, String suffix, String title,
-				Date birthDate, float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, int zipCode) {
+				Date birthDate, Float gwa, Date dateHired, boolean employed, String street, String barangay, String municipality, Integer zipCode) {
 		Person person = getPerson(personId);
 
 		if(person != null) {
@@ -151,9 +151,8 @@ public class PersonManagerImpl implements PersonManager{
 		return person;
 	}
 
-	public void addPersonRole(Long personId, Long roleId) {
-		Person person = getPerson(personId);
-
+	public int addPersonRole(Person person, Long roleId) {
+		//Person person = getPerson(personId);
 		if(person != null) {
 			Role role = person.getRoles()
 							.stream()
@@ -164,19 +163,22 @@ public class PersonManagerImpl implements PersonManager{
 
 			if(role != null) {
 				if(person.getRoles().contains(role)) {
-					System.out.println("[Failed to add role : person " + personId + " already has a " + role.getRoleDesc() + " role]");
+					System.out.println("[Failed to add role : person " + person.getId() + " already has a " + role.getRoleDesc() + " role]");
+					return 0;
 				} else {
 					person.getRoles().add(role);
 					updatePerson(person);
-					System.out.println("[Successfully added " + role.getRoleDesc() + " role to person " + personId + "]");
+					System.out.println("[Successfully added " + role.getRoleDesc() + " role to person " + person.getId() + "]");
+					return 1;
 				}
 			}
 		}
+
+		return 0;
 	}
 
-	public void deletePersonRole(Long personId, Long roleId) {
-		Person person = getPerson(personId);
-
+	public int deletePersonRole(Person person, Long roleId) {
+		//Person person = getPerson(personId);
 		if(person != null) {
 			Role role = person.getRoles()
 							.stream()
@@ -185,14 +187,17 @@ public class PersonManagerImpl implements PersonManager{
 							.orElse(null);
 			
 			if(role != null) {
-				//person.getRoles().remove(role);
-				role.setDeleted(true);
+				person.getRoles().remove(role);
+				//role.setDeleted(true);
 				updatePerson(person);
-				System.out.println("[Successfully deleted " + role.getRoleDesc() + " role from person " + personId + "]");
+				System.out.println("[Successfully deleted " + role.getRoleDesc() + " role from person " + person.getId() + "]");
+				return 1;
 			} else {
 				System.out.println("[Role with id : " + roleId + " does not exist]");
 			}
 		}
+
+		return 0;
 	}
 
 	public Role getRole(Long roleId) {

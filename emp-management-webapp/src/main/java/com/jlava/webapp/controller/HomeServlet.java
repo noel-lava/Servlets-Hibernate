@@ -17,70 +17,80 @@ import com.jlava.model.Person;
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
 	PersonManager personManager;
+	HttpSession session;
+	String searchResult;
+	String deleteResult;	
 
 	public void init() throws ServletException {
 		this.personManager = new PersonManagerImpl();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doPost(request, response);
+		session = request.getSession();
+		int sortBy;
+
+		if((Integer)session.getAttribute("sortBy") != null) {
+			sortBy = (Integer)session.getAttribute("sortBy");
+		} else {
+			sortBy = 3;
+			session.setAttribute("sortBy", sortBy);
+		}
+
+		List<Person> persons = personManager.listPersons(sortBy);
+		session.setAttribute("persons", persons);
+		session.setAttribute("searchResult", searchResult);
+		session.setAttribute("deleteResult", deleteResult);
+
+		RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+		dispatcher.forward(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String dispatchTo = "index.jsp";
-		String searchResult = "";
-		String deleteResult = "";
-		int sortBy;
+		session = request.getSession();
+		String dispatchTo = "home";
+		searchResult = "";
+		deleteResult = "";
+		int sortBy = (Integer)session.getAttribute("sortBy");
 
-		try {
-			sortBy = Integer.parseInt(request.getParameter("sortBy"));
-		} catch (Exception e) {
-			sortBy = 3;
-		}
-
-		if(request.getParameter("sort") != null) {
-			System.out.println("SORT BY : " + sortBy);
-		} else if(request.getParameter("search") != null) {
+		if(request.getParameter("search") != null) {
 			String searchId = request.getParameter("searchId");
 
 			if(searchId != null) {
 				try {
 					Long personId = Long.valueOf(searchId);
-					System.out.println("SEARCH : " + personId);
-					if(personManager.getPerson(personId) != null) {
-						// if id is found, forward to Person Page DISPATCH TO
-						System.out.println("FOUND : " + personId);
+					Person person = personManager.getPerson(personId);
+					if(person != null) {
+						session.setAttribute("person", person);
+						dispatchTo = "manage-person";
 					} else {
-						// else return, display 'Person with id -id- not found'
 						searchResult = "Person with id " + searchId + " not found";
 					}
 				} catch(Exception e) {
 					searchResult = "Invalid Id";
 				}
 			} 
-		} else if(request.getParameter("action") != null
-					&& request.getParameter("action").equals("delete")) {
+		} else if(request.getParameter("delete") != null) {
 			Long personId = null;
-			String deleteId = request.getParameter("id");
+			String deleteId = request.getParameter("delete");
 			if(deleteId != null) {
 				try {
 					personId = Long.valueOf(deleteId);
 					int deleted = personManager.deletePerson(personId);
-					deleteResult = 	(deleted > 0)?"Successfully deleted person with id is " + personId:"Cannot delete person with id = " + personId;
+					deleteResult = 	(deleted > 0)?"Successfully deleted person with id = " + personId:"Cannot delete person with id = " + personId;
 				} catch(Exception e) {
 					deleteResult = "Person with id " + personId + " does not exist";				
 				}
 			} 
-			System.out.println("DELETE : " + deleteId);
+		} else if(request.getParameter("sortBy") != null) {
+			sortBy = Integer.parseInt(request.getParameter("sortBy"));
 		}
 
-		List<Person> persons = personManager.listPersons(sortBy);
-		request.setAttribute("persons", persons);
-		request.setAttribute("sortBy", sortBy);
-		request.setAttribute("searchResult", searchResult);
-		request.setAttribute("deleteResult", deleteResult);
-
-		RequestDispatcher dispatcher = request.getRequestDispatcher(dispatchTo);
-		dispatcher.forward(request, response);
+		if(dispatchTo.equals("home")) {
+			session.setAttribute("sortBy", sortBy);
+			session.setAttribute("searchResult", searchResult);
+			session.setAttribute("deleteResult", deleteResult);
+		}
+		
+		response.sendRedirect(dispatchTo);	
 	}
 }

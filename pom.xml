@@ -81,6 +81,20 @@
           <artifactId>jboss-transaction-api_1.2_spec</artifactId>
           <version>1.0.1.Final</version>
       </dependency>
+
+      <!-- EHCache Dependencies -->
+      <dependency>
+          <groupId>org.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <version>3.3.1</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-ehcache</artifactId>
+          <version>5.2.10.Final</version>
+      </dependency>
+
       <!-- 
       <dependency>
           <groupId>org.hibernate</groupId>
@@ -131,6 +145,18 @@
         <artifactId>javax.servlet-api</artifactId>
         <version>4.0.0-b07</version>
         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.servlet.jsp.jstl</groupId>
+        <artifactId>jstl-api</artifactId>
+        <version>1.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <version>2.9.9</version>
       </dependency>
 
     </dependencies>

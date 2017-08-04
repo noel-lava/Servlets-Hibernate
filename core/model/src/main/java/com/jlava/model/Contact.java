@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.FetchType;
 import javax.persistence.ElementCollection;
 import javax.persistence.CollectionTable;
+import javax.persistence.CascadeType;
 
 @Entity
 @Table(name="contact")
@@ -18,7 +19,7 @@ public class Contact extends BaseModel{
 	@Column(name="contact_type_id", updatable=false, insertable=false)
 	private Long typeId;
 
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="contact_type_id", nullable=false, updatable=false)
 	private ContactType contactType;
 
@@ -27,7 +28,7 @@ public class Contact extends BaseModel{
 	@Column(name="type_desc")
 	private String contactType;*/
 
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="person_id", nullable=false)
 	private Person person;
 

@@ -14,6 +14,13 @@
         <property name="hibernate.archive.autodetection">true</property>
         <!-- <property name="show_sql">true</property> -->
 
+        <property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property> 
+ 
+        <!-- enable second level cache and query cache -->
+        <property name="hibernate.cache.use_second_level_cache">true</property>
+        <property name="hibernate.cache.use_query_cache">true</property>
+        <property name="net.sf.ehcache.configurationResourceName">/com/jlava/persistence/myehcache.xml</property>
+
         <mapping class="com.jlava.model.BaseModel"/>
         <mapping class="com.jlava.model.Address"/>
         <mapping class="com.jlava.model.Name"/>

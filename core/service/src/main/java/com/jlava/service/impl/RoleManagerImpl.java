@@ -46,10 +46,10 @@ public class RoleManagerImpl implements RoleManager{
 			// Get all person with role = roleId
 			List<Person> persons = getPersonsWithRole(roleId);
 
-			if(persons.size() > 0) {
+			if(persons!= null && persons.size() > 0) {
 			// delete all person role with roleId = roleId;
 				persons.forEach(person -> {
-					personManager.deletePersonRole(person.getId(), roleId);
+					personManager.deletePersonRole(person, roleId);
 				});
 			}
 
@@ -63,18 +63,19 @@ public class RoleManagerImpl implements RoleManager{
 		}		
 	}
 
-	public int listRoles() {
+	public List<Role> listRoles() {
 		List<Role> roles= roleDao.getRoles();
-		if(roles.size() > 0) {
+		if(roles != null && roles.size() > 0) {
 			System.out.println("\n[ ROLES ]");
 			roles.forEach(role -> {
 				System.out.println("\t["+role.getId()+"] " + role.getRoleDesc());
 			});
 		} else {
 			System.out.println("[No roles found]");
+			return null;
 		}
 
-		return roles.size();
+		return roles;
 	}
 
 	public Role getRole(Long roleId) {
@@ -89,12 +90,38 @@ public class RoleManagerImpl implements RoleManager{
 	public List<Person> getPersonsWithRole(Long roleId) {
 		List<Person> persons = roleDao.getPersonsWithRole(roleId);
 
-		if(persons.size() < 1) {
+		if(persons != null && persons.size() < 1) {
 			System.out.println("[No persons with role " + roleId + " found]");
 		} else {
 			System.out.println(persons.size() + " persons found.");
 		}
 
 		return persons;
+	}
+
+	public boolean roleExists(Long roleId) {
+		return (getRole(roleId) != null)?true:false;
+	}
+
+	public boolean validCodeDesc(String roleDesc) {
+		boolean valid = true;
+		for(Role role : listRoles()) {
+			if(role.getRoleDesc().equals(roleDesc)) {
+				return false;
+			}
+		}
+
+		return valid;
+	}
+
+	public boolean validCodeDesc(String code, String roleDesc) {
+		boolean valid = true;
+		for(Role role : listRoles()) {
+			if(role.getCode().equals(code) || role.getRoleDesc().equals(roleDesc)) {
+				return false;
+			}
+		}
+
+		return valid;
 	}
 }

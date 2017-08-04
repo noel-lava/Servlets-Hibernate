@@ -19,7 +19,7 @@ public class Address {
 	private Integer zipCode;
 
 	public Address() {}
-	public Address(String street, String barangay, String municipality, int zipCode) {
+	public Address(String street, String barangay, String municipality, Integer zipCode) {
 		this.street = street;
 		this.barangay = barangay;
 		this.municipality = municipality;

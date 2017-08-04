@@ -7,9 +7,12 @@ import javax.persistence.Table;
 import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.FetchType;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="role")
+@Cache(usage=CacheConcurrencyStrategy.READ_WRITE, region="Role")
 public class Role extends BaseModel{
 	@Column(name="role_code")
 	private String code;
@@ -17,7 +20,7 @@ public class Role extends BaseModel{
 	@Column(name="role")
 	private String roleDesc;
 
-	@ManyToMany(fetch=FetchType.LAZY, mappedBy="roles")
+	@ManyToMany(fetch=FetchType.EAGER, mappedBy="roles")
 	private List<Person> persons;
 
 	public Role() {}

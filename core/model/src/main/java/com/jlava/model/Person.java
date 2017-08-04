@@ -12,9 +12,19 @@ import javax.persistence.FetchType;
 import javax.persistence.CascadeType;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 @Entity
 @Table(name="person")
+@FilterDef(name="contactsFilter", 
+	parameters=@ParamDef(name="isDeleted", type="boolean"))
 public class Person extends BaseModel{
 	private Name name;
 
@@ -33,16 +43,17 @@ public class Person extends BaseModel{
 	private Boolean employed;
 	private Address address;
 
-	@OneToMany(fetch=FetchType.LAZY, mappedBy="person")
+	@OneToMany(fetch=FetchType.EAGER, mappedBy="person", cascade=CascadeType.ALL)
+	@Filter(name="contactsFilter", condition="deleted = :isDeleted")
 	private Set<Contact> contacts = new HashSet<Contact>(0);
 	
-	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	@ManyToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinTable(name="person_role", joinColumns = {@JoinColumn(name="person_id", updatable=false)},
 		inverseJoinColumns = {@JoinColumn(name="role_id", updatable=false)})
 	private Set<Role> roles = new HashSet<Role>(0);
 
 	public Person(){}
-	public Person(Name name, Date birthDate, float gwa, Date dateHired, boolean employed, Address address) {
+	public Person(Name name, Date birthDate, Float gwa, Date dateHired, boolean employed, Address address) {
 		this.name = name;
 		this.birthDate = birthDate;
 		this.gwa = gwa;
@@ -67,11 +78,11 @@ public class Person extends BaseModel{
 		this.birthDate = birthDate;
 	}
 
-	public float getGwa() {
+	public Float getGwa() {
 		return gwa;
 	}
 
-	public void setGwa(float gwa) {
+	public void setGwa(Float gwa) {
 		this.gwa = gwa;
 	}
 
@@ -83,11 +94,11 @@ public class Person extends BaseModel{
 		this.dateHired = dateHired;
 	}
 
-	public boolean isEmployed() {
+	public Boolean isEmployed() {
 		return employed;
 	}
 
-	public void setEmployed(boolean employed) {
+	public void setEmployed(Boolean employed) {
 		this.employed = employed;
 	}
 
@@ -113,5 +124,15 @@ public class Person extends BaseModel{
 
 	public void setRoles(Set<Role> roles) {
 		this.roles	 = roles;
+	}
+
+	public String getDateHiredToString() {
+		DateFormat ndf = new SimpleDateFormat("yyyy-MM-dd");
+		return (this.dateHired != null) ? ndf.format(this.dateHired) : "";
+	}
+
+	public String getBirthDateToString() {
+		DateFormat ndf = new SimpleDateFormat("yyyy-MM-dd");
+		return (this.birthDate != null)?ndf.format(this.birthDate):"";
 	}
 }

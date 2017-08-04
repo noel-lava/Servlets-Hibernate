@@ -7,10 +7,12 @@ import com.jlava.model.Role;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.HibernateException;
+import org.hibernate.stat.Statistics;
 import java.util.*;
 
 public class RoleDao {
 	public Long addRole(Role role) {
+		role.setDeleted(false);
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		Transaction transaction = null;
 		Long id = null;
@@ -61,11 +63,20 @@ public class RoleDao {
 	}
 
 	public List<Role> getRoles() {
+		Statistics stats = HibernateUtil.getSessionFactory().getStatistics();
+		stats.setStatisticsEnabled(true);
+
+		printLog("\nPRIOR");
+		printStats(stats);
+
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		List<Role> roles = null;
-		roles = session.createQuery("FROM Role WHERE deleted=false ORDER BY id ASC").list();
-		session.close();
+		roles = session.createQuery("FROM Role WHERE deleted=false ORDER BY id ASC").setCacheable(true).list();
+		
+		printLog("\nEND");
+		printStats(stats);
 
+		session.close();
 		return roles;
 	}
 
@@ -86,4 +97,16 @@ public class RoleDao {
 
 		//return persons;
 	}
+
+	private void printStats(Statistics stats) {
+		System.out.println("Fetch Count=" + stats.getEntityFetchCount());
+		System.out.println("Query Hit = " + stats.getQueryCacheHitCount());
+		System.out.println("Second Level Hit Count=" + stats.getSecondLevelCacheHitCount());
+		System.out.println("Second Level Miss Count=" + stats.getSecondLevelCacheMissCount());
+		System.out.println("Second Level Put Count=" + stats.getSecondLevelCachePutCount());
+	}
+	
+	private void printLog(String msg) {
+		System.out.println(msg);
+	}	
 }
