@@ -64,7 +64,7 @@
                                 </tr>
                                 <tr>
                                     <td style="text-align: right;"><label for="gwa">GWA</label></td>
-                                    <td><input id="gwa" type="number" name="gwa" value="${gwa}" style="width: 90%;" /></td>
+                                    <td><input id="gwa" type="number" name="gwa" value="${gwa}" min="0" max="100" step="0.01" style="width: 90%;" /></td>
                                 </tr>
                                 <tr>
                                     <td style="text-align: right;"><label for="dateHired">Date Hired</label></td>

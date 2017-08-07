@@ -47,15 +47,15 @@ public class ManagePersonServlet extends HttpServlet{
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		session = request.getSession();
 		dispatchTo = "manage-person.jsp";
-		roleResult = "";
-		updateResult = "";
-		contactResult = "";
-		goodUpdate = "";
+		roleResult = ((String)session.getAttribute("roleResult") != null)?((String)session.getAttribute("roleResult")):"";
+		updateResult = ((String)session.getAttribute("updateResult") != null)?((String)session.getAttribute("updateResult")):"";
+		contactResult = ((String)session.getAttribute("contactResult") != null)?((String)session.getAttribute("contactResult")):"";
+		goodUpdate = ((String)session.getAttribute("goodUpdate") != null)?((String)session.getAttribute("goodUpdate")):"";
+		deleteResult = ((String)session.getAttribute("deleteResult") != null)?((String)session.getAttribute("deleteResult")):"";
 		roles = roleManager.listRoles();
 		contactTypes = contactManager.getContactTypes();
-
-		session = request.getSession(false);
 		Person person = (Person)session.getAttribute("person");
 
 		if(person == null) {
@@ -63,27 +63,32 @@ public class ManagePersonServlet extends HttpServlet{
 			dispatchTo = "home";
 		}
 
+		session.removeAttribute("roleResult");
+		session.removeAttribute("updateResult");
+		session.removeAttribute("deleteResult");
+		session.removeAttribute("contactResult");
+		session.removeAttribute("goodUpdate");
+
 		request.setAttribute("roles", roles);
+		request.setAttribute("contactTypes", contactTypes);
 		request.setAttribute("roleResult", roleResult);
 		request.setAttribute("updateResult", updateResult);
 		request.setAttribute("deleteResult", deleteResult);
 		request.setAttribute("contactResult", contactResult);
 		request.setAttribute("goodUpdate", goodUpdate);
-		request.setAttribute("contactTypes", contactTypes);
+		
 		dispatcher = request.getRequestDispatcher(dispatchTo);
 		dispatcher.forward(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String dispatchTo = "manage-person.jsp";
+		String dispatchTo = "manage-person";
 		roleResult = "";
 		updateResult = "";
 		contactResult = "";
 		goodUpdate = "";
-		roles = roleManager.listRoles();
-		contactTypes = contactManager.getContactTypes();
 
-		session = request.getSession(false);
+		session = request.getSession();
 		if(session.getAttribute("person") != null) {
 			Person person = (Person)session.getAttribute("person");
 			int result;
@@ -151,31 +156,58 @@ public class ManagePersonServlet extends HttpServlet{
 				}
 			} else if(request.getParameter("updateContact") != null) { // update contact
 				Long contactId = Long.valueOf(request.getParameter("updateContact"));
-				String contactDesc = request.getParameter("contactDesc" + contactId);
-
-				contactManager.updateContact(person, contactId, contactDesc);
-
+				Integer contactType = Integer.valueOf(request.getParameter("contactType"+contactId));
+				try {
+					String contactDesc = "";
+					switch(contactType) {
+						case 1:
+							contactDesc = AppUtil.readNumeric(request.getParameter("contactDesc"+contactId), false, 7, "phone");
+							break;
+						case 2:
+							contactDesc = AppUtil.readNumeric(request.getParameter("contactDesc"+contactId), false, 11, "cellphone");
+							break;
+						case 3:
+							contactDesc = AppUtil.readLine(request.getParameter("contactDesc"+contactId), false, 30, "e-mail");
+							break;
+					}
+					contactManager.updateContact(person, contactId, contactDesc);
+				} catch (Exception e) {
+					contactResult = "Invalid contact";
+				}
 			} else if(request.getParameter("addContact") != null) { // add contact
 				Long typeId = Long.valueOf(request.getParameter("selectContactType"));
-				String contactInfo = request.getParameter("contactInfo");
-
-				contactManager.addContact(person, typeId, contactInfo);
+				try {
+					String contactInfo = "";
+					switch(typeId.intValue()) {
+						case 1:
+							contactInfo = AppUtil.readNumeric(request.getParameter("contactInfo"), false, 7, "Phone");
+							break;
+						case 2:
+							contactInfo = AppUtil.readNumeric(request.getParameter("contactInfo"), false, 11, "Cellphone");
+							break;
+						case 3:
+							contactInfo = AppUtil.readLine(request.getParameter("contactInfo"), false, 30, "Email");
+							break;
+					}
+					contactManager.addContact(person, typeId, contactInfo);
+				} catch (Exception e) {
+					contactResult = "Invalid contact";
+				}
 			} else if(request.getParameter("deleteContact") != null) { // delete contact
 				Long contactId = Long.valueOf(request.getParameter("deleteContact"));
 				contactManager.deleteContact(person, contactId);
 			}
 
-			request.setAttribute("roles", roles);
-			request.setAttribute("roleResult", roleResult);
-			request.setAttribute("updateResult", updateResult);
-			request.setAttribute("deleteResult", deleteResult);
-			request.setAttribute("contactResult", contactResult);
-			request.setAttribute("goodUpdate", goodUpdate);
-			request.setAttribute("contactTypes", contactTypes);
+			session.setAttribute("roleResult", roleResult);
+			session.setAttribute("updateResult", updateResult);
+			session.setAttribute("deleteResult", deleteResult);
+			session.setAttribute("contactResult", contactResult);
+			session.setAttribute("goodUpdate", goodUpdate);
 			session.setAttribute("person", person);
 
-			dispatcher = request.getRequestDispatcher(dispatchTo);
-			dispatcher.forward(request, response);
+			response.sendRedirect(dispatchTo);
+			// dispatcher = request.getRequestDispatcher(dispatchTo);
+			// dispatcher.forward(request, response);
 		} else {
 			response.sendRedirect("home");
 		}

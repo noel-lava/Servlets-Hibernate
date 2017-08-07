@@ -72,7 +72,7 @@
                             <select name="filterBy">
                                 <%  if(roles != null){
                                     for(Role role : roles) {%>
-                                    <option value="<%=role.getId()%>" <%if(request.getAttribute("sortRoles") == role.getId()){%> selected <%}%>><%=role.getRoleDesc()%></option>
+                                    <option value="<%=role.getId()%>" <%if(session.getAttribute("sortRoles") == role.getId()){%> selected <%}%>><%=role.getRoleDesc()%></option>
                                 <%}}%>
                             </select>
                             <input type="submit" name="filter" value="Filter"/>
@@ -102,7 +102,8 @@
             <br/>
 
             <div style="text-align: center;">
-                <i style="color: #f39c12;"><%=request.getAttribute("operationResult")%></i>
+                <i style="color: red;">${operationResult}</i>
+                <i style="color: green;">${goodResult}</i>
             </div>
 
             <br/><br/>

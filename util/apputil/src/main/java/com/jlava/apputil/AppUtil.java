@@ -68,11 +68,11 @@ public class AppUtil{
 
     public static String readNumeric(String value, boolean acceptNull, int length, String name) throws InvalidNumericException {
     	if ((StringUtils.isEmpty(value) || value == null) && !acceptNull) {
-    		throw new InvalidNumericException("Invalid input ("+name+") : required value");
+    		throw new InvalidNumericException("Invalid "+name+" : required value");
     	} else if(!StringUtils.isNumeric(value)) {
-    		throw new InvalidNumericException("Invalid input ("+name+")");
-		} else if(value.length() > length) {
-    		throw new InvalidNumericException("Invalid input ("+name+") : max length is " + length);
+    		throw new InvalidNumericException("Invalid "+name);
+		} else if(value.length() > length || value.length() < length) {
+    		throw new InvalidNumericException("Invalid "+name);
         } else {
     		return value;		
 		}

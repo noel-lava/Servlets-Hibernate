@@ -20,19 +20,40 @@ import com.jlava.model.Person;
 @WebServlet("/roles")
 public class ManageRolesServlet extends HttpServlet {
 	RoleManager roleManager;
+	String dispatchTo;
+	HttpSession session;
 
 	public void init() throws ServletException {
 		this.roleManager = new RoleManagerImpl(new PersonManagerImpl());
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doPost(request, response);
+		session = request.getSession();
+		List<Role> roles = roleManager.listRoles();
+		List<Person> persons = null;
+		Long sortRoles = (Long)session.getAttribute("sortRoles");
+
+		if(roles != null && sortRoles != null && sortRoles != new Long(0)) {
+			persons = roleManager.getPersonsWithRole(sortRoles);
+		} else if(roles != null) {
+			sortRoles = roles.get(0).getId();
+			persons = roleManager.getPersonsWithRole(sortRoles);
+		}
+
+		request.setAttribute("persons", persons);
+		request.setAttribute("roles", roles);
+		session.setAttribute("sortRoles", sortRoles);
+
+		RequestDispatcher dispatcher = request.getRequestDispatcher("roles.jsp");
+		dispatcher.forward(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String dispatchTo = "/roles.jsp";
+		dispatchTo = "roles";
 		String operationResult = "";
+		String goodResult = "";
 		Long sortRoles = new Long(0);
+		session = request.getSession();
 
 		if(request.getParameter("updateRole") != null) {
 			Long id = Long.valueOf(request.getParameter("updateRole"));
@@ -41,7 +62,7 @@ public class ManageRolesServlet extends HttpServlet {
 			if(roleDesc != null && !roleDesc.isEmpty()) {
 				if(roleManager.validCodeDesc(roleDesc)) {
 					roleManager.updateRole(id, roleDesc);	
-					operationResult = "Role Updated"; 	
+					goodResult = "Role Updated"; 	
 				} else {
 					operationResult = "Description already exist";
 				}
@@ -53,7 +74,7 @@ public class ManageRolesServlet extends HttpServlet {
 
 			if(roleManager.roleExists(id)) {
 				roleManager.deleteRole(id);	
-				operationResult = "Successfully Deleted Role"; 
+				goodResult = "Successfully Deleted Role"; 
 			} else {
 				operationResult = "Role Does Not Exist";
 			}
@@ -66,7 +87,7 @@ public class ManageRolesServlet extends HttpServlet {
 				&& !newRole.isEmpty() && !newCode.isEmpty()) {
 				if(roleManager.validCodeDesc(newCode, newRole)) {
 					roleManager.addRole(newCode, newRole);	
-					operationResult = "New Role Added"; 
+					goodResult = "New Role Added"; 
 				} else {
 					operationResult = "Role already exist";
 				}
@@ -75,25 +96,16 @@ public class ManageRolesServlet extends HttpServlet {
 			}
 		}
 
-		List<Role> roles = roleManager.listRoles();
-		List<Person> persons = null;
-
-		if(roles != null && request.getParameter("filter") != null) {
+		if(request.getParameter("filter") != null) {
 			// List persons by role
-			Long roleId = Long.valueOf(request.getParameter("filterBy"));
-			sortRoles = roleId;
-			persons = roleManager.getPersonsWithRole(sortRoles);
-		} else if(roles != null) {
-			sortRoles = roles.get(0).getId();
-			persons = roleManager.getPersonsWithRole(sortRoles);
+			sortRoles = Long.valueOf(request.getParameter("filterBy"));
+		} else if(session.getAttribute("sortRoles") != null) {
+			sortRoles = (Long)session.getAttribute("sortRoles");
 		}
 
-		request.setAttribute("roles", roles);
-		request.setAttribute("sortRoles", sortRoles);
-		request.setAttribute("persons", persons);
-		request.setAttribute("operationResult", operationResult);
-
-		RequestDispatcher dispatcher = request.getRequestDispatcher(dispatchTo);
-		dispatcher.forward(request, response);
+		session.setAttribute("operationResult", operationResult);
+		session.setAttribute("goodResult", goodResult);
+		session.setAttribute("sortRoles", sortRoles);
+		response.sendRedirect("roles");
 	}
 }

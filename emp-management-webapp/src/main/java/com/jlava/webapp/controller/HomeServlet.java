@@ -41,8 +41,14 @@ public class HomeServlet extends HttpServlet {
 		session.setAttribute("searchResult", searchResult);
 		session.setAttribute("deleteResult", deleteResult);
 
-		RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-		dispatcher.forward(request, response);
+
+
+		if(request.getParameter("search") !=null){
+			doPost(request, response);
+		} else {
+			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+			dispatcher.forward(request, response);
+		}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
